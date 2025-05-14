@@ -2,6 +2,7 @@
 import sys
 import os
 from typing import Optional, Dict, Any
+import importlib.resources # Added for icon loading
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -12,13 +13,21 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QTimer
 from PyQt6.QtGui import QIcon, QCloseEvent
 
-import config
-import utils
+from . import config
+from . import utils
 
 # Find the directory of the script to locate the icon
 # This might need adjustment based on how the app is packaged
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-ICON_PATH = os.path.join(SCRIPT_DIR, 'icon.png') # Assuming icon.png is in the same dir
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# ICON_PATH = os.path.join(SCRIPT_DIR, 'icon.png') # Assuming icon.png is in the same dir
+ICON_PATH = None
+try:
+    with importlib.resources.path("ssh_tunnel_manager", "icon.ico") as icon_path_obj:
+        ICON_PATH = str(icon_path_obj)
+except FileNotFoundError:
+    print("Warning: icon.ico not found in package.")
+    # You could try to load a default icon or skip setting it
+    # For now, ICON_PATH will remain None if not found
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -32,8 +41,10 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 700, 550) # Adjusted initial size
 
         # Set window icon (optional, requires icon.png)
-        if os.path.exists(ICON_PATH):
+        if ICON_PATH and os.path.exists(ICON_PATH):
             self.setWindowIcon(QIcon(ICON_PATH))
+        else:
+            print("GUI: Icon not loaded or path does not exist.")
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)

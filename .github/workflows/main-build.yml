@@ -44,7 +44,7 @@ jobs:
 
       # Run the unified build script (no arguments needed)
       - name: Run build script
-        run: pyinstaller --onefile --name ssh-tunnel-manager main.py
+        run: pyinstaller --onefile --name ssh-tunnel-manager --icon=ssh_tunnel_manager/icon.ico ssh_tunnel_manager/main.py
 
       # Upload the artifacts prepared by build.py
       - name: Upload Artifacts

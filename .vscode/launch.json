@@ -3,9 +3,9 @@
     "configurations": [
         {
             "name": "SSH Tunnel Manager",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/main.py",
+            "module": "ssh_tunnel_manager.main",
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {
