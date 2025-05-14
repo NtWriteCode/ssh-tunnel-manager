@@ -1,0 +1,44 @@
+# SSH Tunnel Manager GUI Requirements
+
+- **Technology Stack:**
+    - Graphical User Interface (GUI)
+- **Functionality:** Simple SSH Tunnel Manager
+- **GUI Elements:**
+    - Input field: Server (e.g., `user@hostname`)
+    - Input field: SSH Port (e.g., `22`), numeric input preferred.
+    - Input field: SSH Certificate Path (e.g., `/path/to/id_rsa`) with Browse button.
+    - Port Mapping Table/List:
+        - Mechanism to add/remove/edit multiple mappings.
+        - Each mapping specifies a local port and a remote port.
+        - The remote host for tunneling is always `localhost`.
+        - Example mapping: `local_port:remote_port` (e.g., `8080:80`)
+        - Visual indication of invalid input directly in the table.
+    - Profile Management Controls (Dropdown/List, Save As, Delete)
+    - Tunnel Control Buttons (Start, Stop, Copy Command)
+    - Status Indicator Label/Widget
+- **Output:** Generate SSH command string based on inputs.
+    - Handles tilde (`~`) expansion for key path.
+    - Handles quoting for key paths with spaces.
+    - Includes basic recommended SSH options for stability (e.g., `ExitOnForwardFailure`, `ConnectTimeout`).
+    - Example: `ssh -p <port> -i <key_path> -L <local1>:localhost:<remote1> -L <local2>:localhost:<remote2> <server> -N -T -o ...`
+- **Execution:** Button to execute the generated SSH command in the background.
+- **State Management:**
+    - Visual feedback indicating if the tunnel for the current profile is idle, starting, running (including PID), or stopped.
+    - Status indicator provides details on errors if tunnel stops unexpectedly.
+    - Button to stop the running tunnel.
+    - Disable editing of configuration fields (server, port, key, mappings) and profile management (save as, delete, profile switching) when the tunnel is active.
+    - Attempt to terminate the running tunnel process automatically when the application exits, prompting the user if necessary.
+- **Profiles:**
+    - Ability to save the current configuration as a named profile.
+    - Ability to load/select from saved profiles.
+    - Ability to delete profiles (except the last one).
+    - Input validation for profile names.
+- **Persistence:** Automatic saving of changes to the currently selected profile (including edits to inputs and mappings) in `~/.config/ssh_tunnel_manager/config.json`. The last used profile is remembered.
+- **Structure:** Use multiple files for logical separation (e.g., config, utils, gui).
+- **Styling & UX:**
+    - Modern look and feel.
+    - Status indicator text color adjusts for theme contrast.
+    - Start/Stop buttons change appearance (e.g., color) to clearly indicate the active state (pressable vs. non-pressable).
+    - Window height dynamically adjusts to fit the port mapping table content, up to a maximum screen height percentage (e.g., 75%), avoiding unnecessary scrollbars when possible.
+- **Validation:** Input validation for ports (1-65535) and profile names.
+- **Testing:** Unit tests for critical non-GUI logic (config handling, command generation, validation utilities). 
