@@ -4,10 +4,10 @@ on:
   workflow_dispatch: {} # Manual trigger
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   release:
@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ssh-tunnel-manager-${{ matrix.platform.target }}
-          path: artifact/*
+          path: dist/*
