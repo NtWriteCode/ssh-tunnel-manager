@@ -3,8 +3,8 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ssh-tunnel-manager"
-version = "0.1.1"
+name = "ssh-tunnel-manager-gui"
+version = "0.2.0"
 description = "A manager for SSH tunnels with a GUI."
 readme = "README.md"
 requires-python = ">=3.8"

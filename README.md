@@ -2,56 +2,42 @@
 
 [![Build status](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/main-build.yml/badge.svg)](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/main-build.yml)
 
+<p align="center"><img src="./ssh_tunnel_manager/icon.ico" width="128" alt="SSH Tunnel Manager Icon"></p>
+
 A modern, user-friendly desktop application for managing SSH tunnels with ease.
 
 ## Overview
 
 The SSH Tunnel Manager simplifies creating, managing, and executing SSH tunnels through an intuitive Graphical User Interface (GUI). Built with Python and PyQt6, it allows for easy configuration of connection profiles, port forwarding, and tunnel control.
 
-## Key Features
-
-*   **Intuitive Profile Management:** Save, load, and manage multiple SSH connection profiles (server, port, key, port mappings).
-*   **Easy Port Forwarding:** Configure multiple local-to-remote port mappings per profile.
-*   **Simple Tunnel Control:** Start/stop tunnels with a click. Copy the underlying SSH command if needed.
-*   **Real-time Status:** Clear visual feedback on tunnel status (Idle, Starting, Running, Stopped, Errors).
-*   **Automatic Persistence:** Profiles are saved to `~/.config/ssh_tunnel_manager/config.json`.
-*   **User-Friendly Design:** Dynamic UI adjustments and clear visual cues for an improved experience.
-
-## Requirements (for running from source)
-
-*   Python 3.x
-*   PyQt6 (`PyQt6>=6.0.0`)
-*   `typing-extensions>=4.0.0`
-*   An SSH client installed and available in your system's PATH (e.g., OpenSSH).
-
 ## Getting Started
 
-### Using a Release (Recommended)
+There are a couple of easy ways to get started with SSH Tunnel Manager:
+
+### 1. Download Executable (Recommended)
+
+The easiest way to use the application is to download a pre-built executable for your operating system.
 
 1.  Go to the [Releases page](https://github.com/NtWriteCode/ssh-tunnel-manager/releases).
-2.  Download the latest executable for your operating system (Windows, macOS, or Linux).
+2.  Download the latest executable for your system (Windows, macOS, or Linux).
 3.  Run the downloaded application. No installation is typically required.
 
-### Running from Source (for Development)
+### 2. Install with pip (Cross-Platform)
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/NtWriteCode/ssh-tunnel-manager.git
-    cd ssh-tunnel-manager
-    ```
-2.  **Create a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\\Scripts\\activate
-    ```
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Run the application:**
-    ```bash
-    python main.py
-    ```
+If you have Python and pip installed, you can install the SSH Tunnel Manager GUI directly from PyPI:
+
+```bash
+pip install ssh-tunnel-manager-gui
+```
+Then, you should be able to run it from your terminal (the exact command might depend on your system's PATH configuration, often it's `ssh-tunnel-manager-gui`).
+
+## Key Features
+
+*   **Intuitive Profile Management:** Save, load, and manage multiple SSH connection profiles.
+*   **Easy Port Forwarding:** Configure multiple local-to-remote port mappings per profile.
+*   **Simple Tunnel Control:** Start/stop tunnels with a click. Copy the underlying SSH command.
+*   **Real-time Status:** Clear visual feedback on tunnel status (Idle, Starting, Running, Stopped, Errors).
+*   **Automatic Persistence:** Profiles are saved to `~/.config/ssh_tunnel_manager/config.json`.
 
 ## Configuration
 
@@ -62,19 +48,56 @@ Once the application is running:
 *   **SSH Key File:** (Optional) Path to your SSH private key (tilde `~` expansion supported).
 *   **Port Forwarding:** Add/remove `Local Port` to `Remote Port` mappings.
 *   **Profiles:** Save, load, or delete configurations. Changes are auto-saved.
-*   **Controls:** Use "Start/Stop Tunnel" and "Copy SSH Command" as needed.
 
 Application data is stored in `~/.config/ssh_tunnel_manager/config.json`.
 
-## Building from Source
+## For Developers
+
+If you want to contribute or run the latest development version:
+
+### Running from Source
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/NtWriteCode/ssh-tunnel-manager.git
+    cd ssh-tunnel-manager
+    ```
+2.  **Create a virtual environment (recommended):**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    # For development, also install dev dependencies:
+    # pip install -r requirements.dev.txt
+    ```
+4.  **Run the application:**
+    ```bash
+    python -m ssh_tunnel_manager.main  # Or your project's main entry point
+    ```
+    *(Note: I've assumed `python -m ssh_tunnel_manager.main` as a common way to run GUI apps from a package structure. If your entry point is just `python main.py` at the root, please adjust or let me know.)*
+
+### Requirements (for running from source)
+
+*   Python 3.x
+*   PyQt6 (`PyQt6>=6.0.0`)
+*   `typing-extensions>=4.0.0`
+*   An SSH client installed and available in your system's PATH (e.g., OpenSSH).
+
+### Building from Source
 
 The project uses PyInstaller. The GitHub Actions workflow (`.github/workflows/main-build.yml`) handles release builds.
 
 To build manually:
-1.  Install build dependencies: `pip install pyinstaller`
-2.  Navigate to the project root.
-3.  Run PyInstaller: `pyinstaller --onefile --name ssh-tunnel-manager main.py`
-    (Add `--windowed` for a no-console build on Windows).
+1.  Ensure you are in the project root with your virtual environment activated.
+2.  Install build dependencies: `pip install pyinstaller`
+3.  Run PyInstaller (example):
+    ```bash
+    pyinstaller --onefile --name ssh-tunnel-manager-gui --windowed ssh_tunnel_manager/main.py
+    ```
+    (Adjust `ssh_tunnel_manager/main.py` to your actual main script path. `--windowed` is good for GUI apps, especially on Windows. The name `ssh-tunnel-manager-gui` aligns with the assumed PyPI name.)
     Executables are found in the `dist` directory.
 
 ## Contributing
@@ -83,7 +106,7 @@ Contributions are welcome! Please fork the repository, create a feature branch, 
 
 1.  Fork the Project
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m \'Add some AmazingFeature\'`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
