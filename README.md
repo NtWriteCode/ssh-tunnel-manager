@@ -1,8 +1,11 @@
 # SSH Tunnel Manager GUI
 
 [![Build status](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/main-build.yml/badge.svg)](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/main-build.yml)
+[![PyPi upload status](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/publish-to-pypi.yml/badge.svg)](https://github.com/NtWriteCode/ssh-tunnel-manager/actions/workflows/publish-to-pypi.yml)
 
-<p align="center"><img src="./ssh_tunnel_manager/icon.ico" width="128" alt="SSH Tunnel Manager Icon"></p>
+![SSH Tunnel Manager Icon](./ssh_tunnel_manager/icon.ico)
+
+![SSH Tunnel Manager Screenshot](./resources/gui.png)
 
 A modern, user-friendly desktop application for managing SSH tunnels with ease.
 
