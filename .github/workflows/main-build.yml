@@ -40,11 +40,11 @@ jobs:
 
       # Install Python dependencies (for build script and GUI)
       - name: Install Python dependencies
-        run: pip install -r requirements.txt pyinstaller
+        run: pip install -r requirements.txt pyinstaller Pillow
 
       # Run the unified build script (no arguments needed)
       - name: Run build script
-        run: pyinstaller --onefile --name ssh-tunnel-manager --icon=ssh_tunnel_manager/icon.ico ssh_tunnel_manager/main.py
+        run: pyinstaller --onefile --name ssh-tunnel-manager-gui --windowed --icon="ssh_tunnel_manager/icon.ico" --add-data "ssh_tunnel_manager/icon.ico:ssh_tunnel_manager" run_app.py
 
       # Upload the artifacts prepared by build.py
       - name: Upload Artifacts

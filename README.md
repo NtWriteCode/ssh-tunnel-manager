@@ -95,9 +95,9 @@ To build manually:
 2.  Install build dependencies: `pip install pyinstaller`
 3.  Run PyInstaller (example):
     ```bash
-    pyinstaller --onefile --name ssh-tunnel-manager-gui --windowed ssh_tunnel_manager/main.py
+    pyinstaller --onefile --name ssh-tunnel-manager-gui --windowed --icon="ssh_tunnel_manager/icon.ico" --add-data "ssh_tunnel_manager/icon.ico:ssh_tunnel_manager" run_app.py
     ```
-    (Adjust `ssh_tunnel_manager/main.py` to your actual main script path. `--windowed` is good for GUI apps, especially on Windows. The name `ssh-tunnel-manager-gui` aligns with the assumed PyPI name.)
+    (The `run_app.py` script is a dedicated entry point for PyInstaller. `--icon` sets the executable icon. `--add-data` ensures the icon is also bundled for runtime access. `--windowed` is good for GUI apps. The name `ssh-tunnel-manager-gui` aligns with the PyPI name.)
     Executables are found in the `dist` directory.
 
 ## Contributing
