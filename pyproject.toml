@@ -34,6 +34,7 @@ classifiers = [
 dependencies = [
     "PyQt6>=6.0.0",
     "typing-extensions>=4.0.0",
+    "PyYAML>=6.0.0",
 ]
 
 [project.urls]
