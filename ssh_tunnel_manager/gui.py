@@ -15,6 +15,7 @@ from PyQt6.QtGui import QIcon, QCloseEvent
 
 from . import config
 from . import utils
+from . import startup_shortcut
 
 # Find the directory of the script to locate the icon
 # This might need adjustment based on how the app is packaged
@@ -82,6 +83,9 @@ class MainWindow(QMainWindow):
         # --- Apply Initial State ---
         self._update_ui_state()
         QTimer.singleShot(0, self._adjust_window_height)
+        
+        # Check if we should ask about creating a shortcut
+        QTimer.singleShot(100, lambda: startup_shortcut.check_and_ask_shortcut(self))
 
     def _create_profile_section(self):
         profile_group = QGroupBox("Profile Management")

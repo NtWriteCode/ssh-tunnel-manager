@@ -37,6 +37,9 @@ dependencies = [
     "PyYAML>=6.0.0",
 ]
 
+[project.optional-dependencies]
+windows = ["pywin32>=300"]
+
 [project.urls]
 "Homepage" = "https://github.com/NtWriteCode/ssh-tunnel-manager"
 "Bug Tracker" = "https://github.com/NtWriteCode/ssh-tunnel-manager/issues"
