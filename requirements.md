@@ -6,7 +6,9 @@
 - **GUI Elements:**
     - Input field: Server (e.g., `user@hostname`)
     - Input field: SSH Port (e.g., `22`), numeric input preferred.
-    - Input field: SSH Certificate Path (e.g., `/path/to/id_rsa`) with Browse button.
+    - Authentication Method: Radio buttons to select between SSH Key and Password authentication.
+    - Input field: SSH Certificate Path (e.g., `/path/to/id_rsa`) with Browse button (for SSH Key authentication).
+    - Input field: SSH Password (for Password authentication, masked input).
     - Port Mapping Table/List:
         - Mechanism to add/remove/edit multiple mappings.
         - Each mapping specifies a local port and a remote port.
@@ -20,7 +22,10 @@
     - Handles tilde (`~`) expansion for key path.
     - Handles quoting for key paths with spaces.
     - Includes basic recommended SSH options for stability (e.g., `ExitOnForwardFailure`, `ConnectTimeout`).
-    - Example: `ssh -p <port> -i <key_path> -L <local1>:localhost:<remote1> -L <local2>:localhost:<remote2> <server> -N -T -o ...`
+    - SSH Key Example: `ssh -p <port> -i <key_path> -L <local1>:localhost:<remote1> -L <local2>:localhost:<remote2> <server> -N -T -o ...`
+    - Password Example: `sshpass -p <password> ssh -p <port> -L <local1>:localhost:<remote1> -L <local2>:localhost:<remote2> <server> -N -T -o ...`
+- **Dependencies:**
+    - For password authentication: `sshpass` must be installed on the system (e.g., `sudo apt install sshpass` on Ubuntu/Debian)
 - **Execution:** Button to execute the generated SSH command in the background.
 - **State Management:**
     - Visual feedback indicating if the tunnel for the current profile is idle, starting, running (including PID), or stopped.

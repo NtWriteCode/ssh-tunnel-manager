@@ -10,6 +10,8 @@ DEFAULT_PROFILE = {
     "server": "",
     "port": 22,
     "key_path": "",
+    "auth_method": "key",  # "key" or "password"
+    "password": "",  # Note: passwords are stored in plain text - consider security implications
     "port_mappings": [] # List of "local_port:remote_port" strings
 }
 

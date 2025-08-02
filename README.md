@@ -41,6 +41,7 @@ Then, you should be able to run it from your terminal (the exact command might d
 *   **Simple Tunnel Control:** Start/stop tunnels with a click. Copy the underlying SSH command.
 *   **Real-time Status:** Clear visual feedback on tunnel status (Idle, Starting, Running, Stopped, Errors).
 *   **Automatic Persistence:** Profiles are saved to `~/.config/ssh_tunnel_manager/config.json`.
+*   **Privileged Port Warnings:** Automatic detection and warnings for ports < 1024 that require sudo/root access.
 
 ## Configuration
 
@@ -48,7 +49,9 @@ Once the application is running:
 
 *   **Server:** Enter the SSH server address (`user@hostname`).
 *   **SSH Port:** Specify the SSH server port (defaults to 22).
-*   **SSH Key File:** (Optional) Path to your SSH private key (tilde `~` expansion supported).
+*   **Authentication:** Choose between SSH Key (default) or Password authentication.
+    *   **SSH Key File:** (Optional) Path to your SSH private key (tilde `~` expansion supported).
+    *   **Password:** Enter your SSH password (requires `sshpass` to be installed).
 *   **Port Forwarding:** Add/remove `Local Port` to `Remote Port` mappings.
 *   **Profiles:** Save, load, or delete configurations. Changes are auto-saved.
 
@@ -88,6 +91,10 @@ If you want to contribute or run the latest development version:
 *   PyQt6 (`PyQt6>=6.0.0`)
 *   `typing-extensions>=4.0.0`
 *   An SSH client installed and available in your system's PATH (e.g., OpenSSH).
+*   `sshpass` (optional, required for password authentication):
+    *   Ubuntu/Debian: `sudo apt install sshpass`
+    *   macOS: `brew install sshpass`
+    *   CentOS/RHEL: `sudo yum install sshpass`
 
 ### Building from Source
 
