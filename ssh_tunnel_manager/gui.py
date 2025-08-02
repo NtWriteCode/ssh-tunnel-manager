@@ -8,7 +8,8 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QFileDialog, QComboBox,
     QTableWidget, QTableWidgetItem, QAbstractItemView, QHeaderView,
-    QMessageBox, QSpinBox, QFormLayout, QGroupBox, QInputDialog, QSizePolicy
+    QMessageBox, QSpinBox, QFormLayout, QGroupBox, QInputDialog, QSizePolicy,
+    QRadioButton, QButtonGroup
 )
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QTimer
 from PyQt6.QtGui import QIcon, QCloseEvent
@@ -74,6 +75,11 @@ class MainWindow(QMainWindow):
         self.server_input.textChanged.connect(self._schedule_save_current_profile)
         self.port_input.valueChanged.connect(self._schedule_save_current_profile)
         self.key_path_input.textChanged.connect(self._schedule_save_current_profile)
+        self.password_input.textChanged.connect(self._schedule_save_current_profile)
+        
+        # Connect authentication method change to update UI
+        self.auth_key_radio.toggled.connect(self._auth_method_changed)
+        self.auth_password_radio.toggled.connect(self._auth_method_changed)
 
         # Connect tunnel control signals
         self.start_button.clicked.connect(self._start_tunnel)
@@ -82,6 +88,7 @@ class MainWindow(QMainWindow):
 
         # --- Apply Initial State ---
         self._update_ui_state()
+        self._auth_method_changed()  # Set initial field visibility
         QTimer.singleShot(0, self._adjust_window_height)
         
         # Check if we should ask about creating a shortcut
@@ -113,29 +120,101 @@ class MainWindow(QMainWindow):
         connection_layout = QFormLayout()
         connection_layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
 
+        server_layout = QHBoxLayout()
+        server_label = QLabel("Server:")
+        server_label.setFixedWidth(100)  # Same width as other labels for consistency
         self.server_input = QLineEdit()
         self.server_input.setPlaceholderText("user@hostname")
         self.server_input.setToolTip("SSH server address (e.g., user@example.com)")
-        connection_layout.addRow("Server:", self.server_input)
+        server_layout.addWidget(server_label)
+        server_layout.addWidget(self.server_input, 1)
+        
+        server_widget = QWidget()
+        server_widget.setLayout(server_layout)
+        connection_layout.addRow(server_widget)
 
         ssh_port_layout = QHBoxLayout()
+        port_label = QLabel("SSH Port:")
+        port_label.setFixedWidth(100)  # Same width as other labels for consistency
         self.port_input = QSpinBox()
         self.port_input.setRange(1, 65535)
         self.port_input.setValue(22)
         self.port_input.setToolTip("SSH server port (1-65535)")
+        ssh_port_layout.addWidget(port_label)
         ssh_port_layout.addWidget(self.port_input)
         ssh_port_layout.addStretch()
-        connection_layout.addRow("SSH Port:", ssh_port_layout)
+        
+        port_widget = QWidget()
+        port_widget.setLayout(ssh_port_layout)
+        connection_layout.addRow(port_widget)
 
-        key_layout = QHBoxLayout()
+        # Authentication method selection
+        auth_layout = QHBoxLayout()
+        auth_label = QLabel("Authentication:")
+        auth_label.setFixedWidth(100)  # Same width as other labels for consistency
+        self.auth_button_group = QButtonGroup()
+        self.auth_key_radio = QRadioButton("SSH Key")
+        self.auth_password_radio = QRadioButton("Password")
+        self.auth_key_radio.setChecked(True)  # Default to SSH key
+        self.auth_key_radio.setToolTip("Use SSH key file for authentication")
+        self.auth_password_radio.setToolTip("Use password for authentication")
+        
+        self.auth_button_group.addButton(self.auth_key_radio)
+        self.auth_button_group.addButton(self.auth_password_radio)
+        
+        auth_layout.addWidget(auth_label)
+        auth_layout.addWidget(self.auth_key_radio)
+        auth_layout.addWidget(self.auth_password_radio)
+        auth_layout.addStretch()
+        
+        auth_widget = QWidget()
+        auth_widget.setLayout(auth_layout)
+        connection_layout.addRow(auth_widget)
+
+        # SSH Key File row - create a horizontal layout with label and controls
+        ssh_key_row_layout = QHBoxLayout()
+        self.ssh_key_label = QLabel("SSH Key File:")
+        self.ssh_key_label.setFixedWidth(100)  # Fixed width for consistent alignment
+        
         self.key_path_input = QLineEdit()
-        self.key_path_input.setPlaceholderText("/path/to/your/private_key (optional)")
+        self.key_path_input.setPlaceholderText("/path/to/your/private_key")
         self.key_path_input.setToolTip("Path to your SSH private key file (e.g., ~/.ssh/id_rsa)")
         self.browse_button = QPushButton("Browse...")
         self.browse_button.setToolTip("Browse for your SSH private key file.")
-        key_layout.addWidget(self.key_path_input, 1)
-        key_layout.addWidget(self.browse_button)
-        connection_layout.addRow("SSH Key File:", key_layout)
+        
+        ssh_key_row_layout.addWidget(self.ssh_key_label)
+        ssh_key_row_layout.addWidget(self.key_path_input, 1)
+        ssh_key_row_layout.addWidget(self.browse_button)
+        
+        self.ssh_key_widget = QWidget()
+        self.ssh_key_widget.setLayout(ssh_key_row_layout)
+        
+        # Add the SSH key row to the main layout
+        connection_layout.addRow(self.ssh_key_widget)
+
+        # Password row - create a horizontal layout with label and controls
+        password_row_layout = QHBoxLayout()
+        self.password_label = QLabel("Password:")
+        self.password_label.setFixedWidth(100)  # Same width as SSH key label
+        
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_input.setPlaceholderText("Enter SSH password")
+        self.password_input.setToolTip("SSH password for authentication")
+        
+        # Add an invisible spacer to maintain consistent spacing with the SSH key row
+        password_spacer = QWidget()
+        password_spacer.setFixedWidth(self.browse_button.sizeHint().width())
+        
+        password_row_layout.addWidget(self.password_label)
+        password_row_layout.addWidget(self.password_input, 1)
+        password_row_layout.addWidget(password_spacer)
+        
+        self.password_widget = QWidget()
+        self.password_widget.setLayout(password_row_layout)
+        
+        # Add the password row to the main layout
+        connection_layout.addRow(self.password_widget)
 
         connection_group.setLayout(connection_layout)
         self.main_layout.addWidget(connection_group)
@@ -241,6 +320,18 @@ class MainWindow(QMainWindow):
         self.server_input.setText(profile_data.get("server", ""))
         self.port_input.setValue(profile_data.get("port", 22))
         self.key_path_input.setText(profile_data.get("key_path", ""))
+        
+        # Handle authentication method - default to "key" for backward compatibility
+        auth_method = profile_data.get("auth_method", "key")
+        if auth_method == "password":
+            self.auth_password_radio.setChecked(True)
+            self.password_input.setText(profile_data.get("password", ""))
+        else:
+            self.auth_key_radio.setChecked(True)
+            # Don't clear password field - preserve any user input from current session
+        
+        # Update field enabled states based on auth method
+        self._auth_method_changed()
 
         self.port_mappings_table.setRowCount(0) # Clear table
         mappings = profile_data.get("port_mappings", [])
@@ -290,8 +381,15 @@ class MainWindow(QMainWindow):
         self.delete_profile_button.setEnabled(not is_running and can_delete)
         self.server_input.setEnabled(not is_running)
         self.port_input.setEnabled(not is_running)
+        
+        # Authentication controls
+        self.auth_key_radio.setEnabled(not is_running)
+        self.auth_password_radio.setEnabled(not is_running)
+        # Key/password fields are only enabled based on tunnel state (visibility is handled by _auth_method_changed)
         self.key_path_input.setEnabled(not is_running)
         self.browse_button.setEnabled(not is_running)
+        self.password_input.setEnabled(not is_running)
+        
         self.port_mappings_table.setEnabled(not is_running)
         self.add_mapping_button.setEnabled(not is_running)
         self.remove_mapping_button.setEnabled(not is_running)
@@ -310,6 +408,21 @@ class MainWindow(QMainWindow):
             text_color = self.palette().text().color().name()
             self.status_label.setText("Status: Idle")
             self.status_label.setStyleSheet(f"color: {text_color}") # Use theme text color
+
+    def _auth_method_changed(self):
+        """Handles changes in authentication method selection."""
+        is_key_auth = self.auth_key_radio.isChecked()
+        
+        # Show/hide the entire row widgets based on authentication method
+        # Each widget contains both the label and input controls in a horizontal layout
+        self.ssh_key_widget.setVisible(is_key_auth)
+        self.password_widget.setVisible(not is_key_auth)
+        
+        # Don't clear the fields - preserve user input so they can switch back
+        # This way users don't lose their SSH key path or password when experimenting
+        
+        # Trigger auto-save
+        self._schedule_save_current_profile()
 
     def _profile_changed(self, profile_name):
         """Handles selection changes in the profile dropdown."""
@@ -341,6 +454,8 @@ class MainWindow(QMainWindow):
             "server": self.server_input.text().strip(),
             "port": self.port_input.value(),
             "key_path": self.key_path_input.text().strip(),
+            "auth_method": "key" if self.auth_key_radio.isChecked() else "password",
+            "password": self.password_input.text(),
             "port_mappings": mappings
         }
         return current_data
@@ -485,6 +600,7 @@ class MainWindow(QMainWindow):
 
         # Basic validation: Check if it's an integer
         is_valid = False
+        port_num = None
         if text:
             try:
                 port_num = int(text)
@@ -508,6 +624,13 @@ class MainWindow(QMainWindow):
             # Reset to the table's base color to respect theme
             base_color = self.port_mappings_table.palette().base().color()
             item.setBackground(base_color)
+            
+            # Check for privileged port warning (only for local ports - column 0)
+            if port_num is not None and col == 0:  # Local port column
+                warning = utils.get_privileged_port_warning(port_num)
+                if warning:
+                    QMessageBox.warning(self, "Privileged Port Warning", warning)
+            
             # Trigger save only if the content is valid or empty
             self._save_current_profile()
             self._adjust_window_height()
@@ -547,6 +670,33 @@ class MainWindow(QMainWindow):
         if not utils.is_valid_port(profile_data.get("port", -1)): # Use -1 for invalid default
             QMessageBox.critical(self, "Error", f"Invalid SSH port: {profile_data.get('port')}")
             return
+        
+        # Check for privileged ports in port mappings
+        privileged_ports = []
+        for mapping_str in profile_data.get("port_mappings", []):
+            parsed = utils.parse_port_mapping(mapping_str)
+            if parsed:
+                local_port, remote_port = parsed
+                warning = utils.get_privileged_port_warning(local_port)
+                if warning:
+                    privileged_ports.append(local_port)
+        
+        # Warn about privileged ports before starting
+        if privileged_ports:
+            ports_str = ", ".join(map(str, privileged_ports))
+            reply = QMessageBox.question(
+                self, 
+                "Privileged Ports Detected",
+                f"The following local ports require elevated privileges: {ports_str}\n\n"
+                f"Ports below 1024 typically require root/sudo access to bind to. "
+                f"The tunnel may fail to start unless you run this application with sudo.\n\n"
+                f"Do you want to continue anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.No:
+                return
+        
         # Consider validating key path existence if provided?
         ssh_command_str = utils.generate_ssh_command(profile_data)
         if not ssh_command_str:

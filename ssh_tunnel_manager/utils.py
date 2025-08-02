@@ -1,5 +1,7 @@
 # Utility functions (command generation, validation, etc.) will go here
 import shlex
+import os
+import subprocess
 from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
 
@@ -33,11 +35,48 @@ def is_valid_profile_name(name: str) -> bool:
     """Checks if a profile name is valid (non-empty, no leading/trailing whitespace)."""
     return bool(name) and name.strip() == name
 
+def is_privileged_port(port: int) -> bool:
+    """Checks if a port is a privileged port (< 1024) that requires root/sudo access."""
+    return 1 <= port < 1024
+
+def has_sudo_privileges() -> bool:
+    """Checks if the current user has sudo privileges."""
+    try:
+        # Check if running as root
+        if os.getuid() == 0:
+            return True
+        
+        # Check if user can run sudo without password prompt
+        # Use sudo -n (non-interactive) to test
+        result = subprocess.run(
+            ['sudo', '-n', 'true'], 
+            capture_output=True, 
+            timeout=5
+        )
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired, AttributeError):
+        # AttributeError for Windows (no os.getuid), OSError if sudo not found
+        return False
+
+def get_privileged_port_warning(port: int) -> Optional[str]:
+    """Returns a warning message if the port requires privileges the user doesn't have."""
+    if not is_privileged_port(port):
+        return None
+    
+    if has_sudo_privileges():
+        return None
+    
+    return (f"Port {port} is a privileged port (< 1024) that typically requires "
+            f"root/sudo access to bind to. You may need to run the application "
+            f"with sudo or use a port >= 1024.")
+
 def generate_ssh_command(profile: Dict[str, Any]) -> Optional[str]:
     """Generates the SSH command string based on the profile data."""
     server = profile.get("server")
     port = profile.get("port", 22)
     key_path_str = profile.get("key_path", "")
+    auth_method = profile.get("auth_method", "key")  # Default to key for backward compatibility
+    password = profile.get("password", "")
     port_mappings = profile.get("port_mappings", [])
 
     if not server:
@@ -48,15 +87,30 @@ def generate_ssh_command(profile: Dict[str, Any]) -> Optional[str]:
         print(f"Error: Invalid SSH port {port}.")
         return None
 
-    cmd = ["ssh"]
+    # For password authentication, check if sshpass is available and password is provided
+    if auth_method == "password":
+        if not password:
+            print("Error: Password is required for password authentication.")
+            return None
+        # Note: sshpass must be installed on the system for password authentication to work
+        cmd = ["sshpass", "-p", password, "ssh"]
+    else:
+        # Key-based authentication (default)
+        cmd = ["ssh"]
 
     cmd.extend(["-p", str(port)])
 
-    if key_path_str:
+    # Only add key path for key-based authentication
+    if auth_method == "key" and key_path_str:
         # Expand tilde
         expanded_key_path = Path(key_path_str).expanduser()
         # No need to quote here; shlex.join will handle it.
         cmd.extend(["-i", str(expanded_key_path)])
+
+    # For password authentication, disable strict host key checking to avoid interactive prompts
+    if auth_method == "password":
+        cmd.extend(["-o", "StrictHostKeyChecking=no"])
+        cmd.extend(["-o", "UserKnownHostsFile=/dev/null"])
 
     valid_mappings = []
     for mapping_str in port_mappings:
